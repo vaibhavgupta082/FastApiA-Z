@@ -2,10 +2,13 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from . import models, schemas, database
 from typing import List
+from passlib.context import CryptContext
 
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
+
+pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def get_db():
     db = database.SessionLocal()
@@ -57,7 +60,10 @@ def update_blog(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
 
 @app.post("/user")
 def create_user(request:schemas.User, db: Session = Depends(get_db)):
-    new_user = models.User(name=request.name, email=request.email, password=request.password)
+    print(type(request.password))
+    hashed_password = pwd_context.hash(request.password)
+    print(hashed_password)
+    new_user = models.User(name=request.name, email=request.email, password=hashed_password)
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
