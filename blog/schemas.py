@@ -18,14 +18,14 @@ class User(BaseModel):
 class ShowUser(BaseModel):
     name:str
     email:str
-    # blogs : List[Blog] =[]
+    blogs : List[Blog] =[]
     class Config():
         orm_mode = True
 
 class ShowBlog(BaseModel):
     title: str
     body:str
-    # creator: ShowUser
+    creator: ShowUser
 
     class Config():
         orm_mode = True
