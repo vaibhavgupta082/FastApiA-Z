@@ -2,13 +2,13 @@ from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from . import models, schemas, database
 from typing import List
-from passlib.context import CryptContext
+from . import hashing
+
 
 models.Base.metadata.create_all(bind=database.engine)
 
 app = FastAPI()
 
-pwd_context = CryptContext(schemes=["argon2"], deprecated="auto")
 
 def get_db():
     db = database.SessionLocal()
@@ -17,19 +17,19 @@ def get_db():
     finally:
         db.close()
         
-@app.get("/blog")
+@app.get("/blog",tags=["Blogs"], response_model=List[schemas.ShowBlog])
 def all_blogs(db: Session = Depends(get_db)):
     blogs = db.query(models.Blog).all()
     return blogs
 
-@app.get("/blog/{id}")
+@app.get("/blog/{id}",tags=["Blogs"])
 def blog(id: int, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id).first()
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Blog with the id {id} is not available")
     return blog
 
-@app.post("/blog")
+@app.post("/blog",tags=["Blogs"])
 def create_blog(request:schemas.Blog, db: Session = Depends(get_db)):
     new_blog = models.Blog(title=request.title, body=request.body)
     db.add(new_blog)
@@ -37,7 +37,7 @@ def create_blog(request:schemas.Blog, db: Session = Depends(get_db)):
     db.refresh(new_blog)
     return new_blog
 
-@app.delete("/blog/{id}")
+@app.delete("/blog/{id}",tags=["Blogs"])
 def delete_blog(id: int, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id)
     if not blog.first():
@@ -46,7 +46,7 @@ def delete_blog(id: int, db: Session = Depends(get_db)):
     db.commit()
     return "done"   
 
-@app.put("/blog/{id}")
+@app.put("/blog/{id}",tags=["Blogs"])
 def update_blog(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
     blog = db.query(models.Blog).filter(models.Blog.id == id)
     if not blog.first():
@@ -58,30 +58,27 @@ def update_blog(id: int, request: schemas.Blog, db: Session = Depends(get_db)):
 
 #create same CRUD for User too
 
-@app.post("/user")
+@app.post("/user" , response_model=schemas.ShowUser,tags=["Users"])
 def create_user(request:schemas.User, db: Session = Depends(get_db)):
-    print(type(request.password))
-    hashed_password = pwd_context.hash(request.password)
-    print(hashed_password)
-    new_user = models.User(name=request.name, email=request.email, password=hashed_password)
+    new_user = models.User(name=request.name, email=request.email, password=hashing.Hash.bcrypt(request.password))
     db.add(new_user)
     db.commit()
     db.refresh(new_user)
     return new_user
 
-@app.get("/user/{id}", response_model=schemas.User)
+@app.get("/user/{id}", response_model=schemas.User,tags=["Users"])
 def get_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id).first()
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"User with the id {id} is not available")
     return user 
 
-@app.get("/users", response_model=List[schemas.User])
+@app.get("/users", response_model=List[schemas.User],tags=["Users"])
 def all_users(db: Session = Depends(get_db)):
     users = db.query(models.User).all()
     return users
 
-@app.delete("/user/{id}")
+@app.delete("/user/{id}",tags=["Users"])
 def delete_user(id: int, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id)
     if not user.first():
@@ -90,7 +87,7 @@ def delete_user(id: int, db: Session = Depends(get_db)):
     db.commit()
     return "done"
 
-@app.put("/user/{id}")
+@app.put("/user/{id}",tags=["Users"])
 def update_user(id: int, request: schemas.User, db: Session = Depends(get_db)):
     user = db.query(models.User).filter(models.User.id == id)
     if not user.first():
