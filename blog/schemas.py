@@ -22,12 +22,16 @@ class ShowUser(BaseModel):
     class Config():
         orm_mode = True
 
-class ShowBlog(BaseModel):
-    title: str
-    body:str
-    creator: ShowUser
-
+class UserCreate(BaseModel):
+    name:str
+    email:str
     class Config():
         orm_mode = True
 
+class ShowBlog(BaseModel):
+    title: str
+    body:str
+    creator: UserCreate
 
+    class Config():
+        orm_mode = True
