@@ -9,4 +9,7 @@ class Hash():
 
     @staticmethod
     def verify(hashed_password: str, plain_password: str):
+        '''
+        Verify the plain password against the hashed password
+        '''
         return pwd_context.verify(plain_password, hashed_password)
