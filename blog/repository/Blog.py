@@ -1,7 +1,8 @@
 from .. import models
 from sqlalchemy.orm import Session
-from ..schemas import ShowBlog, Blog, BlogBase
+from ..schemas import ShowBlog, Blog, BlogBase , User
 from fastapi import HTTPException, status
+from fastapi import Depends
 
 
 def get_all(db: Session):
