@@ -22,12 +22,30 @@ class ShowUser(BaseModel):
     class Config():
         orm_mode = True
 
+class UserCreate(BaseModel):
+    name:str
+    email:str
+    class Config():
+        orm_mode = True
+
 class ShowBlog(BaseModel):
     title: str
     body:str
-    creator: ShowUser
+    creator: UserCreate
 
     class Config():
         orm_mode = True
 
+class Login(BaseModel):
+    username: str
+    password: str
+    class Config():
+        orm_mode = True
 
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: str | None = None

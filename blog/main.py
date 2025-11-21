@@ -1,43 +1,17 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import FastAPI, APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from .. import models, schemas, database
+from . import models, schemas, database
 from typing import List
+from . import hashing
+from .database import get_db
+from .routers import Blog, User, authentication
 
-router = APIRouter(prefix="/users", tags=["Users"])
 
-@router.post("/", response_model=schemas.User)
-def create_user(request: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    user = models.User(name=request.name, email=request.email, password=request.password)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+models.Base.metadata.create_all(bind=database.engine)
 
-@router.get("/", response_model=List[schemas.User])
-def get_all_users(db: Session = Depends(database.get_db)):
-    return db.query(models.User).all()
 
-@router.get("/{id}", response_model=schemas.User)
-def get_user(id: int, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.id == id).first()
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-    return user
+app = FastAPI()
 
-@router.put("/{id}", response_model=schemas.User)
-def update_user(id: int, request: schemas.UserCreate, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.id == id)
-    if not user.first():
-        raise HTTPException(status_code=404, detail="User not found")
-    user.update(request.model_dump())
-    db.commit()
-    return user.first()
-
-@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-def delete_user(id: int, db: Session = Depends(database.get_db)):
-    user = db.query(models.User).filter(models.User.id == id)
-    if not user.first():
-        raise HTTPException(status_code=404, detail="User not found")
-    user.delete()
-    db.commit()
-    return {"message": "User deleted"}
+app.include_router(authentication.router)
+app.include_router(Blog.router)
+app.include_router(User.router)
