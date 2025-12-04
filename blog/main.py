@@ -4,10 +4,11 @@ from . import models, schemas, database
 from typing import List
 from . import hashing
 from .database import get_db
-from .routers import Blog, User, authentication
+from .routers import Blog, User, authentication , trippy
 
 
 models.Base.metadata.create_all(bind=database.engine)
+
 
 
 app = FastAPI()
@@ -15,3 +16,4 @@ app = FastAPI()
 app.include_router(authentication.router)
 app.include_router(Blog.router)
 app.include_router(User.router)
+app.include_router(trippy.router)

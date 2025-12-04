@@ -1,6 +1,13 @@
 from typing import List, Optional
 from pydantic import BaseModel
 
+class PromptRequest(BaseModel):
+    Source: str
+    Destination: str
+    Days: str
+    People: str
+    Budget: str
+    Month: str
 
 class BlogBase(BaseModel):
     title: str
