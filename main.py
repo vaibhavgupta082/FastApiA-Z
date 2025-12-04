@@ -2,8 +2,8 @@ import google.generativeai as genai
 import os
 
 # 1. Setup your API Key
-# Replace 'YOUR_SECRET_KEY' with your actual key
-my_api_key = 'AIzaSyAY7n_ICE0vf_0hJKxGhghqFEO59EWaXl8'
+# Replace '' with your actual key
+my_api_key = 'YOUR_SECRET_KEY'
 
 
 # Configure the library
