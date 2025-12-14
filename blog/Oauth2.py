@@ -11,4 +11,10 @@ def get_current_user(data: str = Depends(oauth2_scheme)):
         detail="Could not validate credentials",
         headers={"WWW-Authenticate": "Bearer"},
     )
-    return JWTtokken.verify_token(data, credentials_exception)
+    # return JWTtokken.verify_token(data, credentials_exception)
+    user = JWTtokken.verify_token(data, credentials_exception)
+    print(f"user in get_current_user: {user}")
+
+    if user is None:   # safety net
+        raise credentials_exception
+    return user

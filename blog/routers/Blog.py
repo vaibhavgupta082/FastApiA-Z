@@ -24,7 +24,7 @@ def blog(id: int, db: Session = Depends(get_db), current_user : User = Depends(O
 
 @router.post("/", response_model=BlogBase)
 def create_blog(request: Blog, db: Session = Depends(get_db), current_user : User = Depends(Oauth2.get_current_user)):
-    return create(request, db)
+    return create(request, db,current_user)
 
 
 @router.delete("/{id}")

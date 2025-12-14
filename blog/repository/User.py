@@ -29,6 +29,15 @@ def get_by_id(db: Session, id: int):
         )
     return user
 
+def get_by_email(db: Session, email: str):
+    user = db.query(models.User).filter(models.User.email == email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"User with the email {email} is not available",
+        )
+    return user
+
 def delete(db: Session, id: int):
     user = db.query(models.User).filter(models.User.id == id)
     if not user.first():

@@ -1,9 +1,10 @@
 from datetime import datetime, timedelta , timezone
-from jose import jwt
+from jose import jwt , JWTError
 from . import schemas
+from blog.core.config import settings
 
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
-ALGORITHM = "HS256"
+SECRET_KEY = settings.SECRET_KEY
+ALGORITHM = settings.ALGORITHM
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 def create_access_token(data: dict):
@@ -17,8 +18,12 @@ def verify_token(token: str, credentials_exception):
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
             email: str = payload.get("sub")
+            print(f"email in verify_token: {email}")
             if email is None:
+                print("Email not found in token payload")
                 raise credentials_exception
             token_data = schemas.TokenData(email=email)
-        except JWTtokken.jwt.JWTError:
+            print(f"token_data: {token_data}")
+            return token_data
+        except JWTError:
             raise credentials_exception
