@@ -27,6 +27,7 @@ class TripRequest(BaseModel):
     nationality: Optional[str] = Field(None, example="Indian")
     occasion: Optional[str] = Field("none", example="honeymoon")
 
+
 class BlogBase(BaseModel):
     title: str
     body: str

@@ -22,7 +22,6 @@ genai.configure(api_key=my_api_key)
 
 # Choose model (flash = fast, pro = deep reasoning)
 model = genai.GenerativeModel("gemini-1.5-flash")
-
 @router.post("/generate")
 async def generate_trip_plan(
     request: TripRequest,
@@ -88,34 +87,12 @@ async def generate_trip_plan(
             detail=f"Trip generation failed: {str(e)}"
         )
 
-# @router.get("/")
-# def blog():
-#     return {"data": "This is trippy router"}
-# @router.get("/get_current_user")
-# def get_current_user(
-#     token: str = Depends(oauth2_scheme),
-#     db: Session = Depends(get_db)
-# ):
-#     if token is None:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="Not authenticated"
-#         )
-
-#     try:
-#         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
-#         email: str = payload.get("sub")
-#         if email is None:
-#             raise HTTPException(status_code=401, detail="Invalid token")
-#     except JWTError:
-#         raise HTTPException(status_code=401, detail="Invalid token")
-
-#     user = db.query(models.User).filter(models.User.email == email).first()
-
-#     if user is None:
-#         raise HTTPException(
-#             status_code=status.HTTP_401_UNAUTHORIZED,
-#             detail="User not found"
-#         )
-
-#     return user  # ✅ ALWAYS return a user
+@router.get("/my_trips")
+def get_my_trips(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(Oauth2.get_current_user)
+):
+    user = get_by_email(db,current_user.email)  # Ensure user exists
+    trips = get_trip_by_user(db, user.id)
+    print(f"Retrieved {len(trips)} trips for user {current_user.email}")
+    return trips
